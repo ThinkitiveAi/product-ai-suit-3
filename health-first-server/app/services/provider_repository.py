@@ -36,7 +36,7 @@ class ProviderRepositoryInterface(ABC):
         pass
     
     @abstractmethod
-    async def get_provider_by_id(self, provider_id: str) -> Optional[Dict[str, Any]]:
+    async def get_provider_by_id(self, provider_id: int) -> Optional[Dict[str, Any]]:
         """Get provider by ID."""
         pass
 
@@ -105,7 +105,7 @@ class SQLProviderRepository(ProviderRepositoryInterface):
         try:
             with db_manager.get_sql_session() as session:
                 provider = session.query(Provider).filter(Provider.email == email).first()
-                return provider.to_dict() if provider else None
+                return provider.to_auth_dict() if provider else None
         except SQLAlchemyError as e:
             logger.error(f"Database error getting provider by email: {str(e)}")
             return None
@@ -130,7 +130,7 @@ class SQLProviderRepository(ProviderRepositoryInterface):
             logger.error(f"Database error getting provider by license: {str(e)}")
             return None
     
-    async def get_provider_by_id(self, provider_id: str) -> Optional[Dict[str, Any]]:
+    async def get_provider_by_id(self, provider_id: int) -> Optional[Dict[str, Any]]:
         """Get provider by ID from SQL database."""
         try:
             with db_manager.get_sql_session() as session:

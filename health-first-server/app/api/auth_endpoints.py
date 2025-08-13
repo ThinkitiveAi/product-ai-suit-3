@@ -12,6 +12,7 @@ from app.schemas.auth import (
 )
 from app.services.auth_service import AuthService
 from app.middleware.auth_middleware import get_current_provider, get_optional_current_provider
+from app.utils.jwt_handler import jwt_handler
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -36,11 +37,13 @@ auth_service = AuthService()
                         "success": True,
                         "message": "Login successful",
                         "data": {
-                            "access_token": "jwt-token-here",
+                            "access_token": "jwt-access-token",
                             "expires_in": 3600,
                             "token_type": "Bearer",
+                            "refresh_token": "jwt-refresh-token",
+                            "refresh_expires_in": 604800,
                             "provider": {
-                                "provider_id": "uuid-here",
+                                "provider_id": 1,
                                 "email": "john.doe@clinic.com",
                                 "first_name": "John",
                                 "last_name": "Doe",
@@ -196,6 +199,55 @@ async def login_provider(login_data: ProviderLoginSchema):
                 "error_code": "AUTHENTICATION_ERROR"
             }
         )
+
+@router.post(
+    "/refresh",
+    status_code=status.HTTP_200_OK,
+    responses={
+        200: {"description": "Refresh token exchanged for new access token"},
+        401: {"description": "Invalid refresh token"}
+    }
+)
+async def refresh_token(body: Dict[str, Any]):
+    try:
+        refresh_token = body.get("refresh_token")
+        if not refresh_token:
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={
+                "success": False, "message": "refresh_token is required", "error_code": "REFRESH_TOKEN_MISSING"
+            })
+        payload = jwt_handler.verify_refresh_token(refresh_token)
+        if not payload:
+            return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={
+                "success": False, "message": "Invalid or expired refresh token", "error_code": "REFRESH_TOKEN_INVALID"
+            })
+        # Minimal provider data for access token generation
+        provider_data = {
+            "provider_id": payload["provider_id"],
+            "email": payload["email"]
+        }
+        # We need full data for claims; try to enrich via service
+        full = await auth_service.repository.get_provider_by_id(payload["provider_id"])
+        if full:
+            provider_data.update({
+                "specialization": full.get("specialization"),
+                "verification_status": full.get("verification_status"),
+                "is_active": full.get("is_active", True)
+            })
+        access = jwt_handler.generate_access_token(provider_data)
+        return JSONResponse(status_code=status.HTTP_200_OK, content={
+            "success": True,
+            "message": "Token refreshed",
+            "data": {
+                "access_token": access["access_token"],
+                "expires_in": access["expires_in"],
+                "token_type": access["token_type"]
+            }
+        })
+    except Exception as e:
+        logger.error(f"Refresh token error: {str(e)}")
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
+            "success": False, "message": "Unable to refresh token", "error_code": "REFRESH_ERROR"
+        })
 
 @router.get(
     "/verify-token",

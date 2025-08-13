@@ -209,7 +209,7 @@ async def validate_unique_fields(
         )
 
 @router.get(
-    "/{provider_id}",
+    "/info/{provider_id}",
     response_model=Dict[str, Any],
     status_code=status.HTTP_200_OK,
     responses={
@@ -222,14 +222,14 @@ async def validate_unique_fields(
         }
     }
 )
-async def get_provider(provider_id: str):
+async def get_provider(provider_id: int):
     """
     Get provider information by ID.
     
     **Note:** This endpoint excludes sensitive information like password hashes.
     
     **Parameters:**
-    - provider_id: Unique provider identifier (UUID for SQL, ObjectId for MongoDB)
+    - provider_id: Unique provider identifier (integer - auto-incrementing)
     
     **Response:**
     - Provider information excluding sensitive data

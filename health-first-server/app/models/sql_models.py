@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, Text, Enum, create_engine, Date, JSON, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, relationship
@@ -44,8 +43,8 @@ class Base(DeclarativeBase):
 class Provider(Base):
     __tablename__ = "providers"
     
-    # Primary key - String for universal compatibility
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), nullable=False)
+    # Primary key - Auto-incrementing integer for simple IDs
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     
     # Personal information
     first_name = Column(String(50), nullable=False)
@@ -87,7 +86,7 @@ class Provider(Base):
     def to_dict(self):
         """Convert model instance to dictionary."""
         return {
-            'provider_id': str(self.id),
+            'provider_id': self.id,
             'first_name': self.first_name,
             'last_name': self.last_name,
             'email': self.email,
@@ -103,9 +102,15 @@ class Provider(Base):
             },
             'verification_status': self.verification_status.value,
             'is_active': self.is_active,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+    
+    def to_auth_dict(self):
+        """Convert model instance to dictionary including password hash for authentication."""
+        data = self.to_dict()
+        data['password_hash'] = self.password_hash
+        return data
     
     def __repr__(self):
         return f"<Provider {self.email}>"
@@ -113,8 +118,8 @@ class Provider(Base):
 class Patient(Base):
     __tablename__ = "patients"
     
-    # Primary key - String for universal compatibility
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), nullable=False)
+    # Primary key - Auto-incrementing integer for simple IDs
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     
     # Personal information
     first_name = Column(String(50), nullable=False)
@@ -161,7 +166,7 @@ class Patient(Base):
     def to_dict(self):
         """Convert model instance to dictionary."""
         return {
-            'patient_id': str(self.id),
+            'patient_id': self.id,
             'first_name': self.first_name,
             'last_name': self.last_name,
             'email': self.email,
@@ -191,10 +196,10 @@ class ProviderAvailability(Base):
     __tablename__ = "provider_availability"
     
     # Primary key
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     
     # Foreign key to provider
-    provider_id = Column(String(36), ForeignKey('providers.id'), nullable=False, index=True)
+    provider_id = Column(Integer, ForeignKey('providers.id'), nullable=False, index=True)
     
     # Time information
     date = Column(DateTime, nullable=False)  # Date for availability (YYYY-MM-DD)
@@ -247,12 +252,12 @@ class AppointmentSlot(Base):
     __tablename__ = "appointment_slots"
     
     # Primary key
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     
     # Foreign keys
-    availability_id = Column(String(36), ForeignKey('provider_availability.id'), nullable=False, index=True)
-    provider_id = Column(String(36), ForeignKey('providers.id'), nullable=False, index=True)
-    patient_id = Column(String(36), ForeignKey('patients.id'), nullable=True, index=True)
+    availability_id = Column(Integer, ForeignKey('provider_availability.id'), nullable=False, index=True)
+    provider_id = Column(Integer, ForeignKey('providers.id'), nullable=False, index=True)
+    patient_id = Column(Integer, ForeignKey('patients.id'), nullable=True, index=True)
     
     # Time information
     slot_start_time = Column(DateTime, nullable=False)  # datetime with timezone

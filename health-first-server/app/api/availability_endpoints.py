@@ -69,7 +69,7 @@ availability_service = AvailabilityService()
     }
 )
 async def create_availability(
-    provider_id: str,
+    provider_id: int,
     availability_data: CreateAvailabilitySchema,
     current_provider: Dict[str, Any] = Depends(get_current_provider)
 ):

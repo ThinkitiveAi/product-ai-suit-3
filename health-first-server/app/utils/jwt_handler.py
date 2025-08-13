@@ -14,6 +14,7 @@ class JWTHandler:
         self.algorithm = "HS256"
         self.access_token_expire_hours = 1
         self.patient_access_token_expire_minutes = 30  # 30 minutes for patients as requested
+        self.refresh_token_expire_days = 7
         
     def generate_access_token(self, provider_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -57,6 +58,31 @@ class JWTHandler:
         except Exception as e:
             logger.error(f"Error generating access token: {str(e)}")
             raise RuntimeError("Failed to generate access token")
+
+    def generate_refresh_token(self, provider_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Generate JWT refresh token for provider.
+        """
+        try:
+            expire = datetime.now(timezone.utc) + timedelta(days=self.refresh_token_expire_days)
+            payload = {
+                "provider_id": provider_data["provider_id"],
+                "email": provider_data["email"],
+                "type": "refresh_token",
+                "role": "provider",
+                "exp": expire,
+                "iat": datetime.now(timezone.utc),
+            }
+            token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+            logger.info(f"Refresh token generated for provider: {provider_data['email']}")
+            return {
+                "refresh_token": token,
+                "expires_in": self.refresh_token_expire_days * 24 * 3600,
+                "expires_at": expire.isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error generating refresh token: {str(e)}")
+            raise RuntimeError("Failed to generate refresh token")
     
     def generate_patient_access_token(self, patient_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -189,5 +215,36 @@ class JWTHandler:
         except Exception:
             return None
 
+    def verify_refresh_token(self, token: str) -> Optional[Dict[str, Any]]:
+        """
+        Verify and decode JWT refresh token.
+        """
+        try:
+            payload = jwt.decode(
+                token,
+                self.secret_key,
+                algorithms=[self.algorithm],
+                options={"verify_exp": True}
+            )
+            if payload.get("type") != "refresh_token":
+                logger.warning("Invalid refresh token type")
+                return None
+            if payload.get("role") != "provider":
+                logger.warning("Invalid refresh token role")
+                return None
+            required_fields = ["provider_id", "email"]
+            if not all(field in payload for field in required_fields):
+                logger.warning("Refresh token missing required fields")
+                return None
+            return payload
+        except jwt.ExpiredSignatureError:
+            logger.warning("Refresh token has expired")
+            return None
+        except jwt.InvalidTokenError:
+            logger.warning("Invalid refresh token")
+            return None
+        except Exception as e:
+            logger.error(f"Error verifying refresh token: {str(e)}")
+            return None
 # Global JWT handler instance
 jwt_handler = JWTHandler() 

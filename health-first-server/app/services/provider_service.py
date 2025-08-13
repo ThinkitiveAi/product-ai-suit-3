@@ -137,12 +137,12 @@ class ProviderService:
                 "errors": {"server": ["Unexpected server error"]}
             }
     
-    async def get_provider_by_id(self, provider_id: str) -> Dict[str, Any]:
+    async def get_provider_by_id(self, provider_id: int) -> Dict[str, Any]:
         """
         Get provider information by ID.
         
         Args:
-            provider_id: Provider's unique identifier
+            provider_id: Provider's unique identifier (integer)
             
         Returns:
             Provider data dictionary or empty dict if not found

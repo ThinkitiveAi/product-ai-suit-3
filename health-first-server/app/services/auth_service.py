@@ -65,26 +65,29 @@ class AuthService:
                     "error_code": "ACCOUNT_NOT_VERIFIED"
                 }
             
-            # Generate JWT token
-            token_data = jwt_handler.generate_access_token(provider)
-            
             # Prepare provider data (without sensitive information)
             provider_data = self._prepare_provider_data(provider)
-            
+
+            # Generate tokens (access + refresh)
+            access = jwt_handler.generate_access_token(provider_data)
+            refresh = jwt_handler.generate_refresh_token(provider_data)
+
             # Successful authentication
             logger.info(f"Successful login for provider: {login_data.email}")
-            
+
             response_data = {
                 "success": True,
                 "message": "Login successful",
                 "data": {
-                    "access_token": token_data["access_token"],
-                    "expires_in": token_data["expires_in"],
-                    "token_type": token_data["token_type"],
+                    "access_token": access["access_token"],
+                    "expires_in": access["expires_in"],
+                    "token_type": access["token_type"],
+                    "refresh_token": refresh["refresh_token"],
+                    "refresh_expires_in": refresh["expires_in"],
                     "provider": provider_data
                 }
             }
-            
+
             return True, response_data
             
         except Exception as e:

@@ -1,0 +1,53 @@
+nohup: ignoring input
+INFO:     Started server process [252963]
+INFO:     Waiting for application startup.
+INFO:main:Starting Health First Provider Registration API
+WARNING:app.database.connections:Cannot connect to postgresql, falling back to SQLite
+INFO:app.database.connections:SQL database initialized successfully with sqlite:///./healthfirst.db
+INFO:main:Database initialized successfully: postgresql
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+WARNING:app.utils.security:Password verification using plain text comparison for testing
+INFO:app.utils.jwt_handler:Access token generated for provider: new.provider@example.com
+INFO:app.utils.jwt_handler:Refresh token generated for provider: new.provider@example.com
+INFO:app.services.auth_service:Successful login for provider: new.provider@example.com
+INFO:app.api.auth_endpoints:Successful login for: new.provider@example.com
+INFO:     127.0.0.1:37672 - "POST /api/v1/provider/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37676 - "GET /api/v1/provider/profile HTTP/1.1" 200 OK
+INFO:     192.168.10.220:50032 - "OPTIONS /api/v1/provider/login HTTP/1.1" 200 OK
+WARNING:app.utils.security:Password verification using plain text comparison for testing
+INFO:app.utils.jwt_handler:Access token generated for provider: atish.bagate@gmail.com
+INFO:app.utils.jwt_handler:Refresh token generated for provider: atish.bagate@gmail.com
+INFO:app.services.auth_service:Successful login for provider: atish.bagate@gmail.com
+INFO:app.api.auth_endpoints:Successful login for: atish.bagate@gmail.com
+INFO:     192.168.10.220:50032 - "POST /api/v1/provider/login HTTP/1.1" 200 OK
+WARNING:app.utils.security:Password verification using plain text comparison for testing
+INFO:app.utils.jwt_handler:Access token generated for provider: rishi.vyas1110@gmail.com
+INFO:app.utils.jwt_handler:Refresh token generated for provider: rishi.vyas1110@gmail.com
+INFO:app.services.auth_service:Successful login for provider: rishi.vyas1110@gmail.com
+INFO:app.api.auth_endpoints:Successful login for: rishi.vyas1110@gmail.com
+INFO:     127.0.0.1:33270 - "POST /api/v1/provider/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46642 - "GET /api/v1/provider/verify-token HTTP/1.1" 200 OK
+INFO:     192.168.10.220:55360 - "OPTIONS /api/v1/provider/logout HTTP/1.1" 200 OK
+INFO:app.api.auth_endpoints:Provider logged out: atish.bagate@gmail.com
+INFO:     192.168.10.220:55360 - "POST /api/v1/provider/logout HTTP/1.1" 200 OK
+WARNING:app.utils.security:Password verification using plain text comparison for testing
+INFO:app.utils.jwt_handler:Access token generated for provider: atish.bagate@gmail.com
+INFO:app.utils.jwt_handler:Refresh token generated for provider: atish.bagate@gmail.com
+INFO:app.services.auth_service:Successful login for provider: atish.bagate@gmail.com
+INFO:app.api.auth_endpoints:Successful login for: atish.bagate@gmail.com
+INFO:     192.168.10.220:59330 - "POST /api/v1/provider/login HTTP/1.1" 200 OK
+INFO:     192.168.10.220:37006 - "GET /api/v1/provider/verify-token HTTP/1.1" 200 OK
+WARNING:app.utils.security:Password verification using plain text comparison for testing
+INFO:app.utils.jwt_handler:Access token generated for provider: atish.bagate@gmail.com
+INFO:app.utils.jwt_handler:Refresh token generated for provider: atish.bagate@gmail.com
+INFO:app.services.auth_service:Successful login for provider: atish.bagate@gmail.com
+INFO:app.api.auth_endpoints:Successful login for: atish.bagate@gmail.com
+INFO:     192.168.10.220:50080 - "POST /api/v1/provider/login HTTP/1.1" 200 OK
+WARNING:app.utils.security:Password verification using plain text comparison for testing
+INFO:app.utils.jwt_handler:Access token generated for provider: new.provider@example.com
+INFO:app.utils.jwt_handler:Refresh token generated for provider: new.provider@example.com
+INFO:app.services.auth_service:Successful login for provider: new.provider@example.com
+INFO:app.api.auth_endpoints:Successful login for: new.provider@example.com
+INFO:     127.0.0.1:45394 - "POST /api/v1/provider/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51474 - "GET /api/v1/provider/verify-token HTTP/1.1" 200 OK
